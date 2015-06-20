@@ -84,7 +84,6 @@ newdata&lt;- rbind(trainingData[1,-155],predictData[,-c(1:5,160)])[-1,]</code></
 training &lt;- trainingData[ind==1,]
 testing &lt;- trainingData[ind==2,]</code></pre>
 <p>2.Apply rpart to bulid the model</p>
-<pre class="r"><code>library(party)</code></pre>
 <pre><code>## Loading required package: grid
 ## Loading required package: mvtnorm
 ## Loading required package: modeltools
@@ -112,15 +111,15 @@ training$predRight &lt;- pred.train==training$classe
 conf.train&lt;- table(pred.train,training$classe);conf.train</code></pre>
 <pre><code>##           
 ## pred.train    A    B    C    D    E
-##          A 3825  120    9   32   22
-##          B   70 2396  107   65   42
-##          C   17   55 2199   77   28
-##          D   30   60   51 2060   73
-##          E   13   69   24   40 2387</code></pre>
+##          A 3706  103   37   58   15
+##          B  100 2386  107   63   83
+##          C   16   96 2236   82   41
+##          D   57   57   45 1971   56
+##          E   11   41    9   39 2357</code></pre>
 <pre class="r"><code>#Compute the expected in sample error
 in.sample.error &lt;- length(training[training$predRight==FALSE,]$predRight)/length(training$predRight)
 in.sample.error</code></pre>
-<pre><code>## [1] 0.07238123</code></pre>
+<pre><code>## [1] 0.08103398</code></pre>
 <p>2.Testing data cross validation</p>
 <pre class="r"><code># predict outcome for test data set
 pred.test &lt;- predict(modFit,testing)
@@ -130,22 +129,20 @@ testing$predRight &lt;- pred.test==testing$classe
 conf.test &lt;- table(pred.test,testing$classe);conf.test</code></pre>
 <pre><code>##          
 ## pred.test    A    B    C    D    E
-##         A 1567   56   14    6    9
-##         B   35  981   42   23   19
-##         C    6   14  939   34   10
-##         D   11   15   31  867   20
-##         E    6   31    6   12  997</code></pre>
+##         A 1613   41   10   20   11
+##         B   37  984   40   24   30
+##         C   10   45  915   40   12
+##         D   25   20   21  907   23
+##         E    5   24    2   12  979</code></pre>
 <pre class="r"><code>#Compute the expected out of sample error
 out.of.sample.error &lt;- length(testing[testing$predRight==FALSE,]$predRight)/length(testing$predRight)
 out.of.sample.error</code></pre>
-<pre><code>## [1] 0.06955312</code></pre>
+<pre><code>## [1] 0.07726496</code></pre>
 <p>3.Model evaluation and choice</p>
 <p>As above, both in sample error and out of sample error are very small. So we can learn that the model fit the data set and will be expected to predict classe well. Besides, will run the model use sample training data sets and predict the classe many time, and then get the most possible results.</p>
 </div>
 <div id="predict" class="section level2">
 <h2>predict</h2>
-<pre class="r"><code># predict outcome for predict data set using the model for many times
-library(party)</code></pre>
 <pre class="r"><code>results &lt;- matrix(NA,nrow=15,ncol=20)
 for (i in 1:nrow(results)) {
         
@@ -162,35 +159,35 @@ for (i in 1:nrow(results)) {
         }
 results</code></pre>
 <pre><code>##       [,1] [,2] [,3] [,4] [,5] [,6] [,7] [,8] [,9] [,10] [,11] [,12] [,13]
-##  [1,] &quot;B&quot;  &quot;A&quot;  &quot;B&quot;  &quot;A&quot;  &quot;A&quot;  &quot;E&quot;  &quot;D&quot;  &quot;D&quot;  &quot;A&quot;  &quot;A&quot;   &quot;B&quot;   &quot;C&quot;   &quot;B&quot;  
-##  [2,] &quot;B&quot;  &quot;A&quot;  &quot;B&quot;  &quot;A&quot;  &quot;A&quot;  &quot;C&quot;  &quot;D&quot;  &quot;A&quot;  &quot;A&quot;  &quot;A&quot;   &quot;C&quot;   &quot;C&quot;   &quot;B&quot;  
-##  [3,] &quot;B&quot;  &quot;A&quot;  &quot;B&quot;  &quot;A&quot;  &quot;A&quot;  &quot;E&quot;  &quot;D&quot;  &quot;B&quot;  &quot;A&quot;  &quot;A&quot;   &quot;A&quot;   &quot;B&quot;   &quot;B&quot;  
-##  [4,] &quot;B&quot;  &quot;A&quot;  &quot;A&quot;  &quot;A&quot;  &quot;A&quot;  &quot;E&quot;  &quot;D&quot;  &quot;B&quot;  &quot;A&quot;  &quot;A&quot;   &quot;B&quot;   &quot;C&quot;   &quot;B&quot;  
-##  [5,] &quot;B&quot;  &quot;A&quot;  &quot;A&quot;  &quot;A&quot;  &quot;A&quot;  &quot;E&quot;  &quot;D&quot;  &quot;B&quot;  &quot;A&quot;  &quot;A&quot;   &quot;B&quot;   &quot;C&quot;   &quot;A&quot;  
-##  [6,] &quot;B&quot;  &quot;A&quot;  &quot;B&quot;  &quot;A&quot;  &quot;A&quot;  &quot;E&quot;  &quot;D&quot;  &quot;B&quot;  &quot;A&quot;  &quot;A&quot;   &quot;B&quot;   &quot;C&quot;   &quot;B&quot;  
-##  [7,] &quot;B&quot;  &quot;A&quot;  &quot;A&quot;  &quot;A&quot;  &quot;A&quot;  &quot;E&quot;  &quot;D&quot;  &quot;B&quot;  &quot;A&quot;  &quot;A&quot;   &quot;B&quot;   &quot;C&quot;   &quot;B&quot;  
-##  [8,] &quot;C&quot;  &quot;A&quot;  &quot;B&quot;  &quot;A&quot;  &quot;A&quot;  &quot;D&quot;  &quot;D&quot;  &quot;D&quot;  &quot;A&quot;  &quot;A&quot;   &quot;B&quot;   &quot;C&quot;   &quot;B&quot;  
-##  [9,] &quot;C&quot;  &quot;B&quot;  &quot;A&quot;  &quot;A&quot;  &quot;A&quot;  &quot;E&quot;  &quot;D&quot;  &quot;D&quot;  &quot;A&quot;  &quot;A&quot;   &quot;B&quot;   &quot;C&quot;   &quot;B&quot;  
-## [10,] &quot;B&quot;  &quot;A&quot;  &quot;A&quot;  &quot;A&quot;  &quot;A&quot;  &quot;E&quot;  &quot;D&quot;  &quot;C&quot;  &quot;A&quot;  &quot;A&quot;   &quot;B&quot;   &quot;C&quot;   &quot;B&quot;  
-## [11,] &quot;C&quot;  &quot;A&quot;  &quot;B&quot;  &quot;A&quot;  &quot;A&quot;  &quot;E&quot;  &quot;D&quot;  &quot;B&quot;  &quot;A&quot;  &quot;A&quot;   &quot;B&quot;   &quot;C&quot;   &quot;B&quot;  
-## [12,] &quot;B&quot;  &quot;A&quot;  &quot;B&quot;  &quot;A&quot;  &quot;A&quot;  &quot;E&quot;  &quot;B&quot;  &quot;B&quot;  &quot;A&quot;  &quot;A&quot;   &quot;B&quot;   &quot;C&quot;   &quot;B&quot;  
-## [13,] &quot;B&quot;  &quot;A&quot;  &quot;B&quot;  &quot;A&quot;  &quot;A&quot;  &quot;E&quot;  &quot;D&quot;  &quot;D&quot;  &quot;A&quot;  &quot;A&quot;   &quot;B&quot;   &quot;C&quot;   &quot;B&quot;  
-## [14,] &quot;B&quot;  &quot;A&quot;  &quot;A&quot;  &quot;A&quot;  &quot;C&quot;  &quot;E&quot;  &quot;D&quot;  &quot;B&quot;  &quot;A&quot;  &quot;A&quot;   &quot;B&quot;   &quot;C&quot;   &quot;B&quot;  
-## [15,] &quot;B&quot;  &quot;A&quot;  &quot;B&quot;  &quot;A&quot;  &quot;A&quot;  &quot;E&quot;  &quot;D&quot;  &quot;C&quot;  &quot;A&quot;  &quot;A&quot;   &quot;B&quot;   &quot;C&quot;   &quot;B&quot;  
+##  [1,] &quot;B&quot;  &quot;A&quot;  &quot;A&quot;  &quot;A&quot;  &quot;A&quot;  &quot;E&quot;  &quot;D&quot;  &quot;D&quot;  &quot;A&quot;  &quot;A&quot;   &quot;B&quot;   &quot;C&quot;   &quot;B&quot;  
+##  [2,] &quot;B&quot;  &quot;A&quot;  &quot;B&quot;  &quot;A&quot;  &quot;A&quot;  &quot;E&quot;  &quot;D&quot;  &quot;B&quot;  &quot;A&quot;  &quot;A&quot;   &quot;B&quot;   &quot;C&quot;   &quot;B&quot;  
+##  [3,] &quot;C&quot;  &quot;A&quot;  &quot;B&quot;  &quot;A&quot;  &quot;A&quot;  &quot;E&quot;  &quot;D&quot;  &quot;D&quot;  &quot;A&quot;  &quot;A&quot;   &quot;B&quot;   &quot;C&quot;   &quot;B&quot;  
+##  [4,] &quot;B&quot;  &quot;A&quot;  &quot;B&quot;  &quot;A&quot;  &quot;A&quot;  &quot;E&quot;  &quot;C&quot;  &quot;B&quot;  &quot;A&quot;  &quot;A&quot;   &quot;B&quot;   &quot;C&quot;   &quot;B&quot;  
+##  [5,] &quot;B&quot;  &quot;A&quot;  &quot;B&quot;  &quot;A&quot;  &quot;A&quot;  &quot;E&quot;  &quot;D&quot;  &quot;B&quot;  &quot;A&quot;  &quot;A&quot;   &quot;B&quot;   &quot;C&quot;   &quot;B&quot;  
+##  [6,] &quot;C&quot;  &quot;A&quot;  &quot;A&quot;  &quot;A&quot;  &quot;A&quot;  &quot;E&quot;  &quot;D&quot;  &quot;A&quot;  &quot;A&quot;  &quot;A&quot;   &quot;C&quot;   &quot;C&quot;   &quot;B&quot;  
+##  [7,] &quot;B&quot;  &quot;A&quot;  &quot;A&quot;  &quot;A&quot;  &quot;A&quot;  &quot;E&quot;  &quot;D&quot;  &quot;D&quot;  &quot;A&quot;  &quot;B&quot;   &quot;B&quot;   &quot;C&quot;   &quot;B&quot;  
+##  [8,] &quot;B&quot;  &quot;A&quot;  &quot;B&quot;  &quot;A&quot;  &quot;C&quot;  &quot;E&quot;  &quot;D&quot;  &quot;B&quot;  &quot;A&quot;  &quot;A&quot;   &quot;B&quot;   &quot;C&quot;   &quot;B&quot;  
+##  [9,] &quot;C&quot;  &quot;A&quot;  &quot;B&quot;  &quot;A&quot;  &quot;A&quot;  &quot;E&quot;  &quot;D&quot;  &quot;B&quot;  &quot;A&quot;  &quot;A&quot;   &quot;B&quot;   &quot;B&quot;   &quot;E&quot;  
+## [10,] &quot;B&quot;  &quot;A&quot;  &quot;C&quot;  &quot;A&quot;  &quot;C&quot;  &quot;E&quot;  &quot;D&quot;  &quot;B&quot;  &quot;A&quot;  &quot;A&quot;   &quot;B&quot;   &quot;C&quot;   &quot;B&quot;  
+## [11,] &quot;B&quot;  &quot;A&quot;  &quot;B&quot;  &quot;A&quot;  &quot;A&quot;  &quot;E&quot;  &quot;D&quot;  &quot;B&quot;  &quot;A&quot;  &quot;A&quot;   &quot;B&quot;   &quot;C&quot;   &quot;B&quot;  
+## [12,] &quot;B&quot;  &quot;A&quot;  &quot;B&quot;  &quot;A&quot;  &quot;A&quot;  &quot;E&quot;  &quot;D&quot;  &quot;B&quot;  &quot;A&quot;  &quot;A&quot;   &quot;B&quot;   &quot;C&quot;   &quot;B&quot;  
+## [13,] &quot;B&quot;  &quot;A&quot;  &quot;B&quot;  &quot;A&quot;  &quot;A&quot;  &quot;E&quot;  &quot;D&quot;  &quot;B&quot;  &quot;A&quot;  &quot;A&quot;   &quot;B&quot;   &quot;C&quot;   &quot;B&quot;  
+## [14,] &quot;B&quot;  &quot;A&quot;  &quot;B&quot;  &quot;A&quot;  &quot;A&quot;  &quot;E&quot;  &quot;D&quot;  &quot;B&quot;  &quot;A&quot;  &quot;A&quot;   &quot;B&quot;   &quot;C&quot;   &quot;B&quot;  
+## [15,] &quot;B&quot;  &quot;A&quot;  &quot;B&quot;  &quot;A&quot;  &quot;A&quot;  &quot;E&quot;  &quot;D&quot;  &quot;B&quot;  &quot;A&quot;  &quot;A&quot;   &quot;B&quot;   &quot;C&quot;   &quot;B&quot;  
 ##       [,14] [,15] [,16] [,17] [,18] [,19] [,20]
 ##  [1,] &quot;A&quot;   &quot;E&quot;   &quot;E&quot;   &quot;A&quot;   &quot;B&quot;   &quot;B&quot;   &quot;B&quot;  
 ##  [2,] &quot;A&quot;   &quot;E&quot;   &quot;E&quot;   &quot;A&quot;   &quot;B&quot;   &quot;B&quot;   &quot;B&quot;  
-##  [3,] &quot;A&quot;   &quot;E&quot;   &quot;E&quot;   &quot;A&quot;   &quot;E&quot;   &quot;B&quot;   &quot;B&quot;  
+##  [3,] &quot;A&quot;   &quot;E&quot;   &quot;E&quot;   &quot;A&quot;   &quot;B&quot;   &quot;B&quot;   &quot;B&quot;  
 ##  [4,] &quot;A&quot;   &quot;E&quot;   &quot;E&quot;   &quot;A&quot;   &quot;B&quot;   &quot;B&quot;   &quot;B&quot;  
 ##  [5,] &quot;A&quot;   &quot;E&quot;   &quot;E&quot;   &quot;A&quot;   &quot;B&quot;   &quot;B&quot;   &quot;B&quot;  
-##  [6,] &quot;A&quot;   &quot;E&quot;   &quot;E&quot;   &quot;A&quot;   &quot;B&quot;   &quot;B&quot;   &quot;B&quot;  
+##  [6,] &quot;A&quot;   &quot;B&quot;   &quot;E&quot;   &quot;A&quot;   &quot;B&quot;   &quot;B&quot;   &quot;B&quot;  
 ##  [7,] &quot;A&quot;   &quot;E&quot;   &quot;E&quot;   &quot;A&quot;   &quot;B&quot;   &quot;B&quot;   &quot;B&quot;  
-##  [8,] &quot;A&quot;   &quot;E&quot;   &quot;E&quot;   &quot;A&quot;   &quot;B&quot;   &quot;A&quot;   &quot;B&quot;  
-##  [9,] &quot;A&quot;   &quot;E&quot;   &quot;E&quot;   &quot;A&quot;   &quot;B&quot;   &quot;A&quot;   &quot;B&quot;  
-## [10,] &quot;A&quot;   &quot;E&quot;   &quot;E&quot;   &quot;A&quot;   &quot;D&quot;   &quot;B&quot;   &quot;B&quot;  
+##  [8,] &quot;A&quot;   &quot;E&quot;   &quot;E&quot;   &quot;A&quot;   &quot;B&quot;   &quot;B&quot;   &quot;B&quot;  
+##  [9,] &quot;A&quot;   &quot;E&quot;   &quot;E&quot;   &quot;A&quot;   &quot;B&quot;   &quot;B&quot;   &quot;B&quot;  
+## [10,] &quot;A&quot;   &quot;E&quot;   &quot;E&quot;   &quot;A&quot;   &quot;E&quot;   &quot;B&quot;   &quot;B&quot;  
 ## [11,] &quot;A&quot;   &quot;E&quot;   &quot;E&quot;   &quot;A&quot;   &quot;B&quot;   &quot;B&quot;   &quot;B&quot;  
 ## [12,] &quot;A&quot;   &quot;E&quot;   &quot;E&quot;   &quot;A&quot;   &quot;B&quot;   &quot;B&quot;   &quot;B&quot;  
-## [13,] &quot;A&quot;   &quot;B&quot;   &quot;E&quot;   &quot;A&quot;   &quot;B&quot;   &quot;B&quot;   &quot;B&quot;  
+## [13,] &quot;A&quot;   &quot;E&quot;   &quot;E&quot;   &quot;A&quot;   &quot;B&quot;   &quot;B&quot;   &quot;B&quot;  
 ## [14,] &quot;A&quot;   &quot;E&quot;   &quot;E&quot;   &quot;A&quot;   &quot;B&quot;   &quot;B&quot;   &quot;B&quot;  
 ## [15,] &quot;A&quot;   &quot;E&quot;   &quot;E&quot;   &quot;A&quot;   &quot;B&quot;   &quot;B&quot;   &quot;B&quot;</code></pre>
 <pre class="r"><code>#find the most possible classe predict results

@@ -11,13 +11,12 @@ output: html_document
 ```{r}
 setwd("C:/Users/Alan GZ Li/Documents/GitHub/Practical-Machine-Learning")
 trainingData <- read.csv("./data/pml-training.csv",na.strings = c("","NA","#DIV/0!"))
-
+trainingData <- trainingData[,-c(1:5)]
 ```
 
 2.load predict data
 ```{r}
 predictData <- read.csv("./data/pml-testing.csv",na.strings = c("","NA","#DIV/0!"))
-#predictData <- read.csv("./data/pml-testing.csv")
 newdata<- predictData[,-c(1:5,160)]
         
 ```
@@ -33,23 +32,18 @@ testing <- trainingData[-inTrain,]
 ```
 
 ```{r}
-ind <- sample(2,nrow(trainingData),replace=TRUE,prob=c(0.6,0.4))
+ind <- sample(2,nrow(trainingData),replace=TRUE,prob=c(0.7,0.3))
 training <- trainingData[ind==1,]
 testing <- trainingData[ind==2,]
 ```
 
-2.Apply rpart to bulid the model
 
-```{r cache=TRUE}
-modFit<-train(classe ~ ., data=training, method="rpart")
-```
+2.Apply rpart to bulid the model
 
 ```{r cache=TRUE}
 library(party)
 modFit<-ctree(classe ~ ., data=training)
 ```
-
-
 
 ##Cross validation
 

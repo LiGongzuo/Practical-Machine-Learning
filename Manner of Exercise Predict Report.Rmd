@@ -34,7 +34,7 @@ testing <- trainingData[ind==2,]
 
 2.Apply rpart to bulid the model
 
-```{r echo=FALSE }
+```{r results='hide'}
 library(party)
 ```
 
@@ -78,7 +78,7 @@ As above, both in sample error and out of sample error are very small. So we can
 
 ##predict 
 
-```{r echo=FALSE }
+```{r results='hide'}
 # predict outcome for predict data set using the model for many times
 library(party)
 ```

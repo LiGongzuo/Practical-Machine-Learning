@@ -84,7 +84,6 @@ newdata&lt;- rbind(trainingData[1,-155],predictData[,-c(1:5,160)])[-1,]</code></
 training &lt;- trainingData[ind==1,]
 testing &lt;- trainingData[ind==2,]</code></pre>
 <p>2.Apply rpart to bulid the model</p>
-<pre class="r"><code>library(party)</code></pre>
 <pre><code>## Loading required package: grid
 ## Loading required package: mvtnorm
 ## Loading required package: modeltools
@@ -112,15 +111,15 @@ training$predRight &lt;- pred.train==training$classe
 conf.train&lt;- table(pred.train,training$classe);conf.train</code></pre>
 <pre><code>##           
 ## pred.train    A    B    C    D    E
-##          A 3749  104   19  115   10
-##          B   64 2348   63   54   47
-##          C   16   57 2263  106   33
-##          D   52   46   38 1861   46
-##          E   26   73   32   52 2409</code></pre>
+##          A 3769   86   26   47   18
+##          B   88 2401   96   49   68
+##          C   18  108 2231   72   30
+##          D   57   38   46 2077   47
+##          E    9   42    8   30 2361</code></pre>
 <pre class="r"><code>#Compute the expected in sample error
 in.sample.error &lt;- length(training[training$predRight==FALSE,]$predRight)/length(training$predRight)
 in.sample.error</code></pre>
-<pre><code>## [1] 0.07695681</code></pre>
+<pre><code>## [1] 0.07111851</code></pre>
 <p>2.Testing data cross validation</p>
 <pre class="r"><code># predict outcome for test data set
 pred.test &lt;- predict(modFit,testing)
@@ -130,44 +129,65 @@ testing$predRight &lt;- pred.test==testing$classe
 conf.test &lt;- table(pred.test,testing$classe);conf.test</code></pre>
 <pre><code>##          
 ## pred.test    A    B    C    D    E
-##         A 1563   57    3   66    5
-##         B   46  979   38   34   32
-##         C    5   43  919   62   35
-##         D   36   47   30  824   36
-##         E   23   43   17   42  954</code></pre>
+##         A 1550   58   21   31    8
+##         B   49  969   51   38   45
+##         C    8   33  920   50   23
+##         D   25   39   20  801   32
+##         E    7   23    3   21  975</code></pre>
 <pre class="r"><code>#Compute the expected out of sample error
 out.of.sample.error &lt;- length(testing[testing$predRight==FALSE,]$predRight)/length(testing$predRight)
 out.of.sample.error</code></pre>
-<pre><code>## [1] 0.117865</code></pre>
-<p>3.Model evaluation</p>
-<p>As above, both in sample error and out of sample error are very small. So we can learn that the model fit the data set and been expected to predict classe well.</p>
+<pre><code>## [1] 0.1008621</code></pre>
+<p>3.Model evaluation and choice</p>
+<p>As above, both in sample error and out of sample error are very small. So we can learn that the model fit the data set and will be expected to predict classe well. Besides, will run the model use sample training data sets and predict the classe many time, and then get the most possible results.</p>
 </div>
 <div id="predict" class="section level2">
 <h2>predict</h2>
-<pre class="r"><code># predict outcome for predict data set using the model
-newdata$classePred &lt;- predict(modFit,newdata)
-cbind(predictData$problem_id,newdata$classePred)</code></pre>
-<pre><code>##       [,1] [,2]
-##  [1,]    1    2
-##  [2,]    2    1
-##  [3,]    3    1
-##  [4,]    4    1
-##  [5,]    5    1
-##  [6,]    6    5
-##  [7,]    7    4
-##  [8,]    8    1
-##  [9,]    9    1
-## [10,]   10    1
-## [11,]   11    2
-## [12,]   12    3
-## [13,]   13    2
-## [14,]   14    1
-## [15,]   15    2
-## [16,]   16    5
-## [17,]   17    1
-## [18,]   18    2
-## [19,]   19    2
-## [20,]   20    2</code></pre>
+<pre class="r"><code>results &lt;- matrix(NA,nrow=10,ncol=20)
+for (i in 1:nrow(results)) {
+        
+        # create sample from data with replacement
+        inda &lt;- sample(2,nrow(trainingData),replace=TRUE,prob=c(0.7,0.3))
+        traininga &lt;- trainingData[inda==1,]
+                
+        # fit loess function through data (similar to spline)
+        modFita&lt;-ctree(classe ~ ., data=traininga)
+        
+        # predict
+        classePred &lt;- as.character(predict(modFita,newdata))
+        results[i,] &lt;- classePred
+        }
+results</code></pre>
+<pre><code>##       [,1] [,2] [,3] [,4] [,5] [,6] [,7] [,8] [,9] [,10] [,11] [,12] [,13]
+##  [1,] &quot;B&quot;  &quot;A&quot;  &quot;A&quot;  &quot;A&quot;  &quot;A&quot;  &quot;E&quot;  &quot;D&quot;  &quot;D&quot;  &quot;A&quot;  &quot;A&quot;   &quot;B&quot;   &quot;C&quot;   &quot;B&quot;  
+##  [2,] &quot;B&quot;  &quot;A&quot;  &quot;B&quot;  &quot;A&quot;  &quot;A&quot;  &quot;E&quot;  &quot;D&quot;  &quot;B&quot;  &quot;A&quot;  &quot;A&quot;   &quot;B&quot;   &quot;C&quot;   &quot;B&quot;  
+##  [3,] &quot;C&quot;  &quot;A&quot;  &quot;B&quot;  &quot;A&quot;  &quot;A&quot;  &quot;E&quot;  &quot;D&quot;  &quot;D&quot;  &quot;A&quot;  &quot;A&quot;   &quot;B&quot;   &quot;C&quot;   &quot;B&quot;  
+##  [4,] &quot;B&quot;  &quot;A&quot;  &quot;B&quot;  &quot;A&quot;  &quot;A&quot;  &quot;E&quot;  &quot;C&quot;  &quot;B&quot;  &quot;A&quot;  &quot;A&quot;   &quot;B&quot;   &quot;C&quot;   &quot;B&quot;  
+##  [5,] &quot;B&quot;  &quot;A&quot;  &quot;B&quot;  &quot;A&quot;  &quot;A&quot;  &quot;E&quot;  &quot;D&quot;  &quot;B&quot;  &quot;A&quot;  &quot;A&quot;   &quot;B&quot;   &quot;C&quot;   &quot;B&quot;  
+##  [6,] &quot;C&quot;  &quot;A&quot;  &quot;A&quot;  &quot;A&quot;  &quot;A&quot;  &quot;E&quot;  &quot;D&quot;  &quot;A&quot;  &quot;A&quot;  &quot;A&quot;   &quot;C&quot;   &quot;C&quot;   &quot;B&quot;  
+##  [7,] &quot;B&quot;  &quot;A&quot;  &quot;A&quot;  &quot;A&quot;  &quot;A&quot;  &quot;E&quot;  &quot;D&quot;  &quot;D&quot;  &quot;A&quot;  &quot;B&quot;   &quot;B&quot;   &quot;C&quot;   &quot;B&quot;  
+##  [8,] &quot;B&quot;  &quot;A&quot;  &quot;B&quot;  &quot;A&quot;  &quot;C&quot;  &quot;E&quot;  &quot;D&quot;  &quot;B&quot;  &quot;A&quot;  &quot;A&quot;   &quot;B&quot;   &quot;C&quot;   &quot;B&quot;  
+##  [9,] &quot;C&quot;  &quot;A&quot;  &quot;B&quot;  &quot;A&quot;  &quot;A&quot;  &quot;E&quot;  &quot;D&quot;  &quot;B&quot;  &quot;A&quot;  &quot;A&quot;   &quot;B&quot;   &quot;B&quot;   &quot;E&quot;  
+## [10,] &quot;B&quot;  &quot;A&quot;  &quot;C&quot;  &quot;A&quot;  &quot;C&quot;  &quot;E&quot;  &quot;D&quot;  &quot;B&quot;  &quot;A&quot;  &quot;A&quot;   &quot;B&quot;   &quot;C&quot;   &quot;B&quot;  
+##       [,14] [,15] [,16] [,17] [,18] [,19] [,20]
+##  [1,] &quot;A&quot;   &quot;E&quot;   &quot;E&quot;   &quot;A&quot;   &quot;B&quot;   &quot;B&quot;   &quot;B&quot;  
+##  [2,] &quot;A&quot;   &quot;E&quot;   &quot;E&quot;   &quot;A&quot;   &quot;B&quot;   &quot;B&quot;   &quot;B&quot;  
+##  [3,] &quot;A&quot;   &quot;E&quot;   &quot;E&quot;   &quot;A&quot;   &quot;B&quot;   &quot;B&quot;   &quot;B&quot;  
+##  [4,] &quot;A&quot;   &quot;E&quot;   &quot;E&quot;   &quot;A&quot;   &quot;B&quot;   &quot;B&quot;   &quot;B&quot;  
+##  [5,] &quot;A&quot;   &quot;E&quot;   &quot;E&quot;   &quot;A&quot;   &quot;B&quot;   &quot;B&quot;   &quot;B&quot;  
+##  [6,] &quot;A&quot;   &quot;B&quot;   &quot;E&quot;   &quot;A&quot;   &quot;B&quot;   &quot;B&quot;   &quot;B&quot;  
+##  [7,] &quot;A&quot;   &quot;E&quot;   &quot;E&quot;   &quot;A&quot;   &quot;B&quot;   &quot;B&quot;   &quot;B&quot;  
+##  [8,] &quot;A&quot;   &quot;E&quot;   &quot;E&quot;   &quot;A&quot;   &quot;B&quot;   &quot;B&quot;   &quot;B&quot;  
+##  [9,] &quot;A&quot;   &quot;E&quot;   &quot;E&quot;   &quot;A&quot;   &quot;B&quot;   &quot;B&quot;   &quot;B&quot;  
+## [10,] &quot;A&quot;   &quot;E&quot;   &quot;E&quot;   &quot;A&quot;   &quot;E&quot;   &quot;B&quot;   &quot;B&quot;</code></pre>
+<pre class="r"><code>#find the most possible classe predict results
+fun &lt;- function(x) {
+ names(which.max(table(x)))
+}
+
+classe.predict &lt;- apply(results,2,fun);classe.predict</code></pre>
+<pre><code>##  [1] &quot;B&quot; &quot;A&quot; &quot;B&quot; &quot;A&quot; &quot;A&quot; &quot;E&quot; &quot;D&quot; &quot;B&quot; &quot;A&quot; &quot;A&quot; &quot;B&quot; &quot;C&quot; &quot;B&quot; &quot;A&quot; &quot;E&quot; &quot;E&quot; &quot;A&quot;
+## [18] &quot;B&quot; &quot;B&quot; &quot;B&quot;</code></pre>
 </div>
 
 

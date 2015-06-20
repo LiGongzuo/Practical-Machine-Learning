@@ -16,20 +16,14 @@ trainingData <- trainingData[,-c(1:5)]
 
 2.load predict data
 ```{r}
-predictData <- read.csv("./data/pml-testing.csv",na.strings = c("","NA","#DIV/0!"))
-newdata<- predictData[,-c(1:5,160)]
-        
+predictData <- read.csv("./data/pml-testing.csv",na.strings = c("","NA","#DIV/0!"),)
+newdata<- rbind(trainingData[1,-155],predictData[,-c(1:5,160)])[-1,]
+
 ```
 
 ##Built model
 
 1.Setting up training and testing data
-```{r}
-library(caret)
-inTrain <- createDataPartition(y=trainingData$classe,p=0.6, list=FALSE)
-training <- trainingData[inTrain,]
-testing <- trainingData[-inTrain,]
-```
 
 ```{r}
 ind <- sample(2,nrow(trainingData),replace=TRUE,prob=c(0.7,0.3))
@@ -83,8 +77,21 @@ As above, both in sample error and out of sample error are very small. So we can
 
 ```{r}
 # predict outcome for predict data set using the model
-newdata$classePred <- predict(modFit,newdata)
-c(predictData$problem_id,newdata$classePred)
+results <- matrix(NA,nrow=2,ncol=20)
+for (i in 1:2) {
+        # create sample from data with replacement
+        inda <- sample(2,nrow(trainingData),replace=TRUE,prob=c(0.7,0.3))
+        traininga <- trainingData[ind==1,]
+        testinga <- trainingData[ind==2,]
+        
+        # fit loess function through data (similar to spline)
+        modFita<-ctree(classe ~ ., data=traininga)
+        
+        # predict
+        classePred <- predict(modFita,newdata);classePred
+        results[i,] <- classePred
+        }
+results
 
 ```
 

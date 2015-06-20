@@ -1,7 +1,7 @@
 ---
 title: "Manner of Exercise Predict"
 author: "Li Gongzuo"
-date: "Wednesday, June 17, 2015"
+date: "Wednesday, June 21, 2015"
 output: html_document
 ---
 
@@ -34,8 +34,11 @@ testing <- trainingData[ind==2,]
 
 2.Apply rpart to bulid the model
 
-```{r cache=TRUE}
+```{r echo=FALSE }
 library(party)
+```
+
+```{r cache=TRUE}
 modFit<-ctree(classe ~ ., data=training)
 ```
 
@@ -69,29 +72,39 @@ out.of.sample.error
 
 ```
 
-3.Model evaluation
+3.Model evaluation and choice
 
-As above, both in sample error and out of sample error are very small. So we can learn that the model fit the data set and been expected to predict classe well.
+As above, both in sample error and out of sample error are very small. So we can learn that the model fit the data set and will be expected to predict classe well. Besides, will run the model use sample training data sets and predict the classe many time, and then get the most possible results.
 
 ##predict 
 
+```{r echo=FALSE }
+# predict outcome for predict data set using the model for many times
+library(party)
+```
+
 ```{r}
-# predict outcome for predict data set using the model
-results <- matrix(NA,nrow=2,ncol=20)
-for (i in 1:2) {
+results <- matrix(NA,nrow=10,ncol=20)
+for (i in 1:nrow(results)) {
+        
         # create sample from data with replacement
         inda <- sample(2,nrow(trainingData),replace=TRUE,prob=c(0.7,0.3))
-        traininga <- trainingData[ind==1,]
-        testinga <- trainingData[ind==2,]
-        
+        traininga <- trainingData[inda==1,]
+                
         # fit loess function through data (similar to spline)
         modFita<-ctree(classe ~ ., data=traininga)
         
         # predict
-        classePred <- predict(modFita,newdata);classePred
+        classePred <- as.character(predict(modFita,newdata))
         results[i,] <- classePred
         }
 results
 
-```
+#find the most possible classe predict results
+fun <- function(x) {
+ names(which.max(table(x)))
+}
 
+classe.predict <- apply(results,2,fun);classe.predict
+
+```

@@ -1,0 +1,105 @@
+---
+title: "Manner of Exercise Predict"
+author: "Li Gongzuo"
+date: "Wednesday, June 17, 2015"
+output: html_document
+---
+
+##Load and clean the data set
+ 
+1.Load training data
+```{r cache=TRUE}
+setwd("C:/Users/Alan GZ Li/Documents/GitHub/Practical-Machine-Learning")
+#trainingData <- read.csv("./data/pml-training.csv",na.strings = c("","NA","#DIV/0!"))
+trainingData <- read.csv("./data/pml-training.csv")
+```
+
+2.Clean the missing and non-suitable variables
+```{r echo=FALSE}
+library(VIM)
+```
+
+```{r}
+aggr(trainingData)
+```
+
+As the graph, there are many variables which contains more than 95% missing value. So these variables should be omitted.
+
+```{r}
+#count the missing value and omit some variables
+fun <- function (x) {sum(is.na(x))}
+NAcount <- apply(trainingData,2,fun)
+NAcount <- as.data.frame(NAcount)
+
+col<- which(NAcount$NAcount > length(trainingData)*0.95)
+trainingData<- trainingData[,-c(1:5,col)]
+
+```
+
+3.load predict data
+```{r}
+#predictData <- read.csv("./data/pml-testing.csv",na.strings = c("","NA","#DIV/0!"))
+predictData <- read.csv("./data/pml-testing.csv")
+newdata<- predictData[,-c(1:5,col,160)]
+        
+```
+
+##Built model
+
+1.Setting up training and testing data
+```{r}
+library(caret)
+inTrain <- createDataPartition(y=trainingData$classe,p=0.6, list=FALSE)
+training <- trainingData[inTrain,]
+testing <- trainingData[-inTrain,]
+```
+
+2.Apply rpart to bulid the model
+
+```{r cache=TRUE}
+modFit<-train(classe ~ ., data=training, method="rpart")
+```
+
+##Cross validation
+
+1.Training data cross validation
+```{r}
+# predict outcome for train data set
+pred.train <- predict(modFit,training)
+# logic value for whether or not the model predicted correctly
+training$predRight <- pred.train==training$classe
+# tabulate results
+conf.train<- table(pred.train,training$classe);conf.train
+#Compute the expected in sample error
+in.sample.error <- length(training[training$predRight==FALSE,]$predRight)/length(training$predRight)
+in.sample.error
+
+```
+
+2.Testing data cross validation
+```{r}
+# predict outcome for test data set
+pred.test <- predict(modFit,testing)
+# logic value for whether or not the model predicted correctly
+testing$predRight <- pred.test==testing$classe
+# tabulate results
+conf.test <- table(pred.test,testing$classe);conf.test
+#Compute the expected out of sample error
+out.of.sample.error <- length(testing[testing$predRight==FALSE,]$predRight)/length(testing$predRight)
+out.of.sample.error
+
+```
+
+3.Model evaluation
+
+As above, both in sample error and out of sample error are very small. So we can learn that the model fit the data set and been expected to predict classe well.
+
+##predict 
+
+```{r}
+# predict outcome for predict data set using the model
+newdata$classePred <- predict(modFit,newdata)
+c(predictData$problem_id,newdata$classePred)
+
+```
+

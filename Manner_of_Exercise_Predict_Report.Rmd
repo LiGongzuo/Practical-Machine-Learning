@@ -106,12 +106,5 @@ fun <- function(x) {
 }
 
 classe.predict <- apply(results,2,fun);classe.predict
-<<<<<<< HEAD
 
 ```
-
-
-=======
-
-```
->>>>>>> origin/gh-pages

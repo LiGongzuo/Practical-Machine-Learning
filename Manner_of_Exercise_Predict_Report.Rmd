@@ -84,7 +84,7 @@ library(party)
 ```
 
 ```{r}
-results <- matrix(NA,nrow=10,ncol=20)
+results <- matrix(NA,nrow=15,ncol=20)
 for (i in 1:nrow(results)) {
         
         # create sample from data with replacement

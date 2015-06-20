@@ -84,6 +84,7 @@ newdata&lt;- rbind(trainingData[1,-155],predictData[,-c(1:5,160)])[-1,]</code></
 training &lt;- trainingData[ind==1,]
 testing &lt;- trainingData[ind==2,]</code></pre>
 <p>2.Apply rpart to bulid the model</p>
+<pre class="r"><code>library(party)</code></pre>
 <pre><code>## Loading required package: grid
 ## Loading required package: mvtnorm
 ## Loading required package: modeltools
@@ -111,15 +112,15 @@ training$predRight &lt;- pred.train==training$classe
 conf.train&lt;- table(pred.train,training$classe);conf.train</code></pre>
 <pre><code>##           
 ## pred.train    A    B    C    D    E
-##          A 3757  123   19   23   25
-##          B   72 2345  104   63   46
-##          C   16   46 2157   79   30
-##          D   30   55   56 2037   65
-##          E    9   70   19   40 2350</code></pre>
+##          A 3780  125   18   29   24
+##          B   81 2376  115   63   39
+##          C   17   47 2178   83   25
+##          D   29   54   54 2036   65
+##          E   11   66   24   38 2340</code></pre>
 <pre class="r"><code>#Compute the expected in sample error
 in.sample.error &lt;- length(training[training$predRight==FALSE,]$predRight)/length(training$predRight)
 in.sample.error</code></pre>
-<pre><code>## [1] 0.07260194</code></pre>
+<pre><code>## [1] 0.07341255</code></pre>
 <p>2.Testing data cross validation</p>
 <pre class="r"><code># predict outcome for test data set
 pred.test &lt;- predict(modFit,testing)
@@ -129,20 +130,22 @@ testing$predRight &lt;- pred.test==testing$classe
 conf.test &lt;- table(pred.test,testing$classe);conf.test</code></pre>
 <pre><code>##          
 ## pred.test    A    B    C    D    E
-##         A 1635   53    4   15    6
-##         B   33 1032   45   25   15
-##         C    7   23  981   32    8
-##         D   11   20   26  890   28
-##         E   10   30   11   12 1034</code></pre>
+##         A 1612   51    5    9    7
+##         B   24 1001   34   25   22
+##         C    6   22  960   28   13
+##         D   12   21   28  891   28
+##         E    8   34    6   14 1044</code></pre>
 <pre class="r"><code>#Compute the expected out of sample error
 out.of.sample.error &lt;- length(testing[testing$predRight==FALSE,]$predRight)/length(testing$predRight)
 out.of.sample.error</code></pre>
-<pre><code>## [1] 0.06916138</code></pre>
+<pre><code>## [1] 0.06723116</code></pre>
 <p>3.Model evaluation and choice</p>
 <p>As above, both in sample error and out of sample error are very small. So we can learn that the model fit the data set and will be expected to predict classe well. Besides, will run the model use sample training data sets and predict the classe many time, and then get the most possible results.</p>
 </div>
 <div id="predict" class="section level2">
 <h2>predict</h2>
+<pre class="r"><code># predict outcome for predict data set using the model for many times
+library(party)</code></pre>
 <pre class="r"><code>results &lt;- matrix(NA,nrow=10,ncol=20)
 for (i in 1:nrow(results)) {
         
